@@ -4,7 +4,7 @@
 
 ## Flow
    - `subagents list` → Check for timeouts 
-   - `gh issue list` → Critical issues/PRs **(Exclude archived repos)**
+   - `gh issue list` → Critical issues/PRs of all repositories **(Exclude archived repos)**
    - **Check spawned agents status** → See below
    - Check `memory/heartbeat-state.json` → Maintenance needed?
    - `git status` → Uncommitted changes 
@@ -14,8 +14,6 @@
 ## Spawned Agents Auto-Check
 
 **Purpose:** Automatically check if spawned sub-agents completed their tasks and continue workflow without user prompting.
-
-**When to check:** Every heartbeat poll
 
 **How to check:**
 ```bash
@@ -35,15 +33,6 @@ subagents list
 | ❌ Failed/Error | Alert user with error summary |
 | ⏱️ Timeout >10min | Attempt graceful kill → Respawn with extended timeout |
 | 🔄 Still running | Monitor only, do not interrupt |
-
-**Workflow Phase Transitions (from WORKFLOW.md):**
-- Phase 1 REQUIREMENTS → Phase 2 ANALYSIS: **Requires user approval**
-- Phase 2 ANALYSIS → Phase 3 DESIGN: Auto-spawn ArchitectAgent
-- Phase 3 DESIGN → Phase 4 DEV: Auto-spawn BackendAgent + FrontendAgent
-- Phase 4 DEV → Phase 5 TEST: Auto-spawn QAAgent
-- Phase 5 TEST → Phase 6 DEPLOY: Auto-spawn DevOpsAgent
-- Phase 6 DEPLOY → Phase 7 DOCS: Auto-spawn DocsAgent
-- Phase 7 DOCS → Phase 8 REVIEW: Auto-spawn ReviewerAgent
 
 **Important:** Only auto-continue if:
 1. Sub-agent explicitly reported success
