@@ -517,3 +517,56 @@ safe-config-patch '{ agents: { defaults: { heartbeat: { every: "2h" } } } }' "He
 - Rate limit: 3 Config-RPCs / 60 Sekunden
 - Hot-reload: Most fields apply instantly (no restart)
 
+---
+
+## Tavily Search (Web Search Alternative)
+
+**Status:** ✅ Aktiv – Workaround für broken Brave Search
+**Location:** `~/.openclaw/skills/tavily-search/`
+**API Key:** `TAVILY_API_KEY` (in `~/.openclaw/.env`)
+
+### Warum Tavily?
+- Brave Search API ist broken (endpoint `/api/web/search` deprecated)
+- Tavily funktioniert sofort mit gültigem Key
+- Kostenlos: ~1000 Requests/Monat
+- Gute Ergebnisqualität mit AI-Context
+
+### Quick Commands
+
+```bash
+# Direkt nutzen
+node ~/.openclaw/skills/tavily-search/scripts/tavily-search.js "openclaw" 5
+
+# Als Alias (empfohlen – in .bashrc hinzufügen)
+alias tavily-search='node ~/.openclaw/skills/tavily-search/scripts/tavily-search.js'
+```
+
+### Response Format
+
+```json
+{
+  "query": "openclaw",
+  "results": [
+    {
+      "title": "What Is OpenClaw? Complete Guide...",
+      "url": "https://milvus.io/blog/...",
+      "snippet": "OpenClaw is an autonomous..."
+    }
+  ],
+  "answer": "OpenClaw is an open-source AI agent..."
+}
+```
+
+### Vergleich: Brave vs Tavily
+
+| Feature | Brave | Tavily |
+|---------|-------|--------|
+| Status | ❌ Broken | ✅ Funktioniert |
+| Free Tier | 2000/mo | ~1000/mo |
+| AI Answer | Nein | Ja |
+| API Key | BSA* tokens defekt | tvly-dev-* funktioniert |
+
+### Weitere Infos
+- Quickstart: `~/.openclaw/skills/tavily-search/QUICKSTART.md`
+- Skill Docs: `~/.openclaw/skills/tavily-search/SKILL.md`
+
