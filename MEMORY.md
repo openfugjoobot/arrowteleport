@@ -26,6 +26,7 @@ _This file contains curated, lasting memories. Update when something important i
 - **9 Agents:** main, dev-orchestrator, research, architect, backend, frontend, qa, docs, devops
 - **Heartbeat:** 5 minutes
 - **GitHub Org:** openfugjoobot/*
+- **Workflow Orchestrator:** ✅ 9 Phasen, Parallel-Execution (Phase 4), Retry-Logic (max 3), Auto-Backups
 
 ## Security Notes
 

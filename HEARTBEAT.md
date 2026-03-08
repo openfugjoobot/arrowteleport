@@ -6,7 +6,10 @@
 2. **GitHub Issues** → Repos von `https://github.com/openfugjoobot/*` → P0/P1 Issues?
 3. **Git Status** → Uncommitted changes im Workspace?
 4. **Memory Maintenance** → `memory/heartbeat-state.json` aktuell?
-5. **Workflow Orchestrator** → `node bin/orchestrator.js check` → Advance phases?
+5. **Workflow Orchestrator** → `cd ~/.openclaw/skills/workflow-orchestrator && node bin/orchestrator.js check` → Advance phases?
+   - Bei 'advancing': Nächsten Phase-Spawn triggern
+   - Bei 'retry': Retry-Logic beachten (max 3 Versuche)
+   - Bei 'failed': User alerten
 
 ---
 
