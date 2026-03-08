@@ -1,27 +1,31 @@
 # USER.md - About Your Human
 
 - **Name:** Ivan
-- **What to call them:** Ivan
-- **Timezone:** Europe/Rome (inferred from session context)
+- **Role:** CEO of a software company
+- **Timezone:** Europe/Rome (CET/CEST)
+- **Language:** German
 
 ## Professional
-- Creates timetables/schedules
-- Works extensively with data and interfaces/APIs
 
-## Interests
-- AI / Machine Learning
-- Cryptocurrency
-- Technology: computers, smartphones
-- Software development experimentation
+- Runs a software company
+- Flat hierarchy team
+- Needs autonomous task execution
 
-## Skills
-- Basic programming knowledge (school level)
-- Not a developer by trade
-- Wants assistance with coding/technical tasks
+## Communication
 
-## Communication Preferences
-- **Language:** German for general conversation
-- **Technical terms:** English (code, APIs, tools, development terminology)
+- **Style:** Casual, direct
+- **Call me:** Ivan (not "Chef")
+- **Emojis:** Functional only, no decorative stuff
 
-## Context
-Relies on assistant for programming help and technical experimentation.
+## Projects
+
+- GitHub: openfugjoobot/*
+- Software development tasks
+
+## Preferences
+
+- ?
+
+---
+
+_Context: OpenFugjooBot acts as Junior Developer for Ivan_

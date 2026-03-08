@@ -1,51 +1,19 @@
 # HEARTBEAT.md - Periodic Health Check
 
-### Check for all git repositories in https://github.com/openfugjoobot/*
-
 ## Flow
-   - `subagents list` → Check for timeouts 
-   - `gh issue list` → Critical issues/PRs of all repositories **(Exclude archived repos)**
-   - **Check spawned agents status** → See below
-   - Check `memory/heartbeat-state.json` → Maintenance needed?
-   - `git status` → Uncommitted changes 
+
+1. **Subagents Check** → `subagents list` → Timeouts >10min?
+2. **GitHub Issues** → Repos von `https://github.com/openfugjoobot/*` → P0/P1 Issues?
+3. **Git Status** → Uncommitted changes im Workspace?
+4. **Memory Maintenance** → `memory/heartbeat-state.json` aktuell?
+5. **Workflow Orchestrator** → `node bin/orchestrator.js check` → Advance phases?
 
 ---
 
-## Spawned Agents Auto-Check
-
-**Purpose:** Automatically check if spawned sub-agents completed their tasks and continue workflow without user prompting.
-
-**How to check:**
-```bash
-# List recent sub-agents
-subagents list
-
-# For each sub-agent spawned in last session:
-# 1. Check status (completed / failed / timeout)
-# 2. If status shows completion but no workflow continuation:
-#    → Spawn next phase automatically (per WORKFLOW.md Phase Transitions)
-```
-
-**Auto-Action Rules:**
-| Sub-Agent Result | Action |
-|-----------------|--------|
-| ✅ Completed successfully | Check WORKFLOW.md for next phase → Auto-spawn if defined |
-| ❌ Failed/Error | Alert user with error summary |
-| ⏱️ Timeout >10min | Attempt graceful kill → Respawn with extended timeout |
-| 🔄 Still running | Monitor only, do not interrupt |
-
-**Important:** Only auto-continue if:
-1. Sub-agent explicitly reported success
-2. Phase transition is marked as "automatic" in WORKFLOW.md
-3. spawnContext contains phase information
-4. User has not interrupted (no manual commands since spawn)
-
-**Tracking:** Update `memory/heartbeat-spawn-tracker.json` with:
+**Tracking:** Update `memory/heartbeat-spawn-tracker.json`:
 ```json
 {
-  "activeSpawns": [
-    {"agentId": "research", "spawnedAt": 1234567890, "phase": "ANALYSIS", "status": "running"}
-  ],
+  "activeSpawns": [{"agentId": "research", "phase": "ANALYSIS", "status": "running"}],
   "autoContinuations": 0
 }
 ```
@@ -56,16 +24,15 @@ subagents list
 
 | Level | Format |
 |-------|--------|
-| Critical | 🚨 [description] |
-| Warning | ⚠️ [list] |
-| Nothing | HEARTBEAT_OK |
+| 🚨 Critical | `[description]` |
+| ⚠️ Warning | `[list]` |
+| ✅ OK | `HEARTBEAT_CHECK` |
 
 ---
 
 ## State Tracking
 
-Update `memory/heartbeat-state.json` with timestamps:
-
+Update `memory/heartbeat-state.json`:
 ```json
 {
   "lastChecks": {
@@ -79,42 +46,55 @@ Update `memory/heartbeat-state.json` with timestamps:
 
 ---
 
-## Memory Maintenance
-
-Daily maintenance of memory files:
-
-### 1. Daily Logs
-- Check: Does `memory/YYYY-MM-DD.md` exist for today?
-- **Action:** Write important decisions, conversations, context to `memory/YYYY-MM-DD.md`
-- **Interval:** Every heartbeat session (when relevant)
-
-### 2. Lessons Learned
-File: `memory/LESSONS.md`
-
-**When to add:**
-- Mistakes made → How to avoid?
-- New insight about tools/workflow
-- User preference learned
-- Technical problem solved
-
-**Format:**
-```markdown
-### [YYYY-MM-DD] Short title
-- **Context:** What happened?
-- **Solution:** What was done?
-- **For future:** Concrete rule/statement
-```
-
-**Action:** Review last 2-3 days → Transfer important learnings to `LESSONS.md`
-
----
-
 ## Check Thresholds
 
 | Check | Interval | Alert Condition |
 |-------|----------|-----------------|
 | Subagents | Every poll | Timeout >10min |
-| GitHub | >1h since last | Any p0/p1 issues |
-| Memory | >48h since last | Maintenance due |
-| Git | >30min since last | Uncommitted changes |
-| Lessons Update | >48h since last | Entries outdated |
+| GitHub | >1h | Any P0/P1 issues |
+| Memory | >48h | Maintenance due |
+| Git | >30min | Uncommitted changes |
+
+---
+
+## When to Stay Quiet (HEARTBEAT_OK)
+
+- Late night (3:00-08:00) unless urgent
+- Nothing new since last check
+- No active spawns pending
+- No uncommitted changes
+
+---
+
+## When to Reach Out
+
+- Important GitHub issues found
+- Sub-agent timeout/failure
+- Calendar event <2h
+- Something interesting discovered
+
+---
+
+## Workflow Orchestrator Check
+
+**Purpose:** Auto-advance development workflow through 8 phases.
+
+**Command:**
+```bash
+cd ~/.openclaw/skills/workflow-orchestrator && node bin/orchestrator.js check
+```
+
+**Workflow:**
+- Loads `memory/workflow-state.json`
+- Checks if active subagent completed
+- If done → advances to next phase automatically
+- Spawns next agent in the chain
+
+**State Tracking:**
+- `memory/workflow-state.json` - Current phase, active agents, artifacts
+- `memory/backups/` - Automatic backups on each change
+
+**Alert Conditions:**
+- Workflow stuck (>30min on same phase) → Alert user
+- Multiple subagent failures → Alert user
+- Workflow completed → Congratulate user + summary

@@ -1,35 +1,58 @@
 # MEMORY.md - Long-Term Memory
 
-**Last updated:** 2026-03-05
+_This file contains curated, lasting memories. Update when something important is learned or decided._
 
-## About Ivan
+---
 
-- **Name:** Ivan
-- **Timezone:** Europe/Rome
-- **Role:** Works with data, timetables/schedules, APIs
-- **Interests:** AI/ML, Cryptocurrency, Technology, Software Development
-- **Coding Level:** Basic (school level), not a professional developer
+## Identity
 
-## Preferences
+**Name:** OpenFugjooBot
+**Emoji:** 🦞
+**Role:** Junior Developer / Digital Assistant
+**Specialty:** OpenClaw features expert (docs = Bible)
 
-- **Language:** German for conversation, English for technical terms (code, APIs, tools)
-- **Style:** Professional, serious, precise communication
-- **Emojis:** Functional only, no decorative usage
-- **Signature:** 🦞
+## User
 
-## Important Context
+**Name:** Ivan
+**Role:** CEO, software company
+**Language:** German (casual)
+**Timezone:** Europe/Rome (CET/CEST)
+**Hierarchy:** Flat - call him "Ivan", not "Chef"
 
-- Relies on assistant for programming help and technical experimentation
-- Works extensively with data and interfaces/APIs
+## Setup
 
-## Key Learnings
+- **OpenClaw Version:** 2026.3.7 (stable)
+- **Model:** main = qwen3.5:cloud (262k context), current session = glm-5:cloud
+- **9 Agents:** main, dev-orchestrator, research, architect, backend, frontend, qa, docs, devops
+- **Heartbeat:** 5 minutes
+- **GitHub Org:** openfugjoobot/*
 
-*No entries yet - add as they occur*
+## Security Notes
 
-## Active Projects
+- SSH: Key-only, no root login
+- UFW: Active (deny incoming, allow outgoing)
+- No disk encryption (Oracle Cloud)
+- Gateway: loopback only (127.0.0.1:18789)
 
-*Track ongoing work here*
+## API Keys & Integrations
 
-## Notes
+| Service | Status |
+|---------|--------|
+| Brave Search | ✅ Working |
+| Tavily Search | ✅ Working |
+| Telegram Bot | ✅ Connected |
+| GitHub | ✅ Authenticated (openfugjoobot) |
+| Google Workspace | ✅ gog configured |
+| ElevenLabs TTS | ✅ Configured |
+| CoinGecko | ✅ Configured |
 
-*Significant decisions, preferences, or insights worth remembering*
+## Key Files
+
+- `~/.openclaw/openclaw.json` - Main config
+- `~/.openclaw/.env` - API keys
+- `~/.openclaw/workspace/` - Working directory
+- `~/.openclaw/skills/` - Installed skills
+
+---
+
+_Last updated: 2026-03-08_

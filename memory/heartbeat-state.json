@@ -1,19 +1,11 @@
 {
   "lastChecks": {
-    "email": 1741184780,
-    "calendar": 1741283400,
-    "weather": null,
-    "subagents": 1741283400,
-    "github": 1741283400,
-    "memory": 1741283400,
-    "git": 1741283400,
-    "lessons": 1741283400,
-    "blogwatcher": 1741283400
+    "subagents": 1772973110,
+    "github": 1772973110,
+    "memory": 1741434000,
+    "git": 1772973110,
+    "workflow": 1772973110
   },
-  "lastCommit": "79f07ef",
-  "notes": [
-    "2026-03-06: Tavily Search Skill erstellt (Brave Alternative)",
-    "2026-03-06: blogwatcher mit 9 Feeds eingerichtet (231 ungelesene Artikel)",
-    "2026-03-06: LESSONS.md mit 5 neuen Lessons aktualisiert"
-  ]
+  "createdAt": "2026-03-08T12:50:00+01:00",
+  "lastCheckAt": "2026-03-08T14:59:00+01:00"
 }
