@@ -18,6 +18,7 @@ _This file contains curated, lasting memories. Update when something important i
 **Language:** German (casual)
 **Timezone:** Europe/Rome (CET/CEST)
 **Hierarchy:** Flat - call him "Ivan", not "Chef"
+**Preferences:** Crypto prices always in USD
 
 ## Setup
 
