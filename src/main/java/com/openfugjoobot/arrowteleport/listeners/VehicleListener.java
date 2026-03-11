@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 /**
  * Blocks player from riding entities and vehicles
@@ -21,8 +21,8 @@ public class VehicleListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityMount(EntityMountEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
+    public void onPlayerAttemptRide(VehicleEnterEvent event) {
+        if (!(event.getEntered() instanceof Player player)) {
             return;
         }
 
@@ -32,7 +32,7 @@ public class VehicleListener implements Listener {
 
         if (plugin.getConfigManager().isRestrictionEnabled("block-riding")) {
             event.setCancelled(true);
-            player.sendMessage(MessageUtil.withPrefix("\u0026cRiding is disabled!"));
+            player.sendMessage(MessageUtil.withPrefix("&cRiding is disabled!"));
         }
     }
 

@@ -11,7 +11,6 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRiptideEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerWindChargeEvent;
 
 /**
  * Handles item usage restrictions
@@ -85,16 +84,18 @@ public class ItemListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onWindCharge(PlayerWindChargeEvent event) {
+    public void onWindCharge(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
         if (!plugin.getGameManager().hasActiveSession(player)) {
             return;
         }
 
-        if (plugin.getConfigManager().isRestrictionEnabled("block-wind-charges")) {
-            event.setCancelled(true);
-            player.sendMessage(MessageUtil.withPrefix("\u0026cWind charges are disabled!"));
+        if (event.getItem() != null && event.getItem().getType() == Material.WIND_CHARGE) {
+            if (plugin.getConfigManager().isRestrictionEnabled("block-wind-charges")) {
+                event.setCancelled(true);
+                player.sendMessage(MessageUtil.withPrefix("&cWind charges are disabled!"));
+            }
         }
     }
 
