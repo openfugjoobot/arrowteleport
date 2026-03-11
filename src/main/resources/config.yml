@@ -1,0 +1,80 @@
+# ═══════════════════════════════════════════════════
+# ArrowTeleport Configuration
+# Paper 1.21.x - Arrow Teleport Challenge Plugin
+# ═══════════════════════════════════════════════════
+
+# Game Settings
+game:
+  # Enable movement restrictions globally
+  restrict-movement: true
+  
+  # Allow cross-world arrow teleportation
+  cross-world-teleport: true
+  
+  # Maximum teleport distance (0 = unlimited, in blocks)
+  max-teleport-distance: 0
+  
+  # Fall damage reduction after teleport (0.0 - 1.0, where 1.0 = no damage)
+  fall-damage-reduction: 0.5
+  
+  # Teleport cooldown in seconds (0 = no cooldown)
+  teleport-cooldown: 0
+
+# Starter Kit
+kit:
+  enabled: true
+  items:
+    bow:
+      material: BOW
+      amount: 1
+      enchantments:
+        - "INFINITY:1"
+    arrows:
+      material: ARROW
+      amount: 64
+    food:
+      material: COOKED_BEEF
+      amount: 32
+    apples:
+      material: GOLDEN_APPLE
+      amount: 5
+
+# Timer Settings
+timer:
+  enabled: true
+  # Countdown before timer starts (seconds)
+  countdown: 3
+  # Action bar display format
+  # Variables: %minutes%, %seconds%, %arrows%, %distance%
+  format: "&aTime: &f%minutes%:%seconds% &7| &bArrows: &f%arrows%"
+
+# Movement Restrictions
+restrictions:
+  # Block walking/sprinting
+  block-walking: true
+  # Block swimming
+  block-swimming: true
+  # Block elytra flight
+  block-elytra: true
+  # Block riding entities (horse, pig, strider)
+  block-riding: true
+  # Block vehicles (minecart, boat)
+  block-vehicles: true
+  # Block ender pearls
+  block-ender-pearls: true
+  # Block chorus fruit
+  block-chorus-fruit: true
+  # Block wind charges
+  block-wind-charges: true
+  # Block trident riptide
+  block-riptide: true
+
+# Messages
+# Supports color codes: &0-black, &1-dark blue, &2-dark green, &3-dark aqua
+# &4-dark red, &5-dark purple, &6-gold, &7-gray, &8-dark gray, &9-blue
+# &a-green, &b-aqua, &c-red, &d-light purple, &e-yellow, &f-white
+messages:
+  prefix: "&8[&6ArrowTeleport&8] &r"
+  movement-blocked: "&cYou can only move vertically! Shoot an arrow to teleport."
+  teleport-success: "&aWhoosh! Teleported to arrow."
+  cooldown-active: "&cTeleport on cooldown: &f%seconds%s"

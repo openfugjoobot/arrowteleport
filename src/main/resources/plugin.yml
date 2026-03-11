@@ -1,0 +1,63 @@
+name: ArrowTeleport
+version: '${project.version}'
+main: com.openfugjoobot.arrowteleport.ArrowTeleport
+api-version: '1.21'
+author: OpenFugjooBot
+description: Arrow teleportation challenge game mode - horizontal movement only via arrows
+
+permissions:
+  arrowteleport.use:
+    description: Access to basic ArrowTeleport commands
+    default: true
+  arrowteleport.reset:
+    description: Reset to spawn
+    default: true
+  arrowteleport.start:
+    description: Start a challenge
+    default: true
+  arrowteleport.kit:
+    description: Get starter kit
+    default: true
+  arrowteleport.stats:
+    description: View statistics
+    default: true
+  arrowteleport.reload:
+    description: Reload configuration
+    default: op
+  arrowteleport.admin:
+    description: All admin permissions
+    default: op
+    children:
+      arrowteleport.reload: true
+
+commands:
+  arrowteleport:
+    description: Main ArrowTeleport command
+    usage: /at [help|status]
+    aliases: [at]
+    permission: arrowteleport.use
+  atreset:
+    description: Reset to spawn
+    usage: /atReset
+    permission: arrowteleport.reset
+    aliases: [atreset]
+  atstart:
+    description: Start challenge with countdown
+    usage: /atStart
+    permission: arrowteleport.start
+    aliases: [atstart]
+  atkit:
+    description: Get starter kit
+    usage: /atKit
+    permission: arrowteleport.kit
+    aliases: [atkit]
+  atstats:
+    description: Show your statistics
+    usage: /atStats
+    permission: arrowteleport.stats
+    aliases: [atstats]
+  atreload:
+    description: Reload configuration
+    usage: /atReload
+    permission: arrowteleport.reload
+    aliases: [atreload]
