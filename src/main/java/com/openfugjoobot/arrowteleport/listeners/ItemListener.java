@@ -78,8 +78,8 @@ public class ItemListener implements Listener {
         }
 
         if (plugin.getConfigManager().isRestrictionEnabled("block-riptide")) {
-            event.setCancelled(true);
-            player.sendMessage(MessageUtil.withPrefix("\u0026cTrident riptide is disabled!"));
+            // PlayerRiptideEvent is not cancellable in Paper API - just notify player
+            player.sendMessage(MessageUtil.withPrefix("&cTrident riptide is disabled!"));
         }
     }
 
@@ -101,9 +101,7 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPearlTeleport(PlayerTeleportEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
+        Player player = event.getPlayer();
 
         if (!plugin.getGameManager().hasActiveSession(player)) {
             return;
@@ -113,7 +111,7 @@ public class ItemListener implements Listener {
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL &&
             plugin.getConfigManager().isRestrictionEnabled("block-ender-pearls")) {
             event.setCancelled(true);
-            player.sendMessage(MessageUtil.withPrefix("\u0026cEnder pearls are disabled!"));
+            player.sendMessage(MessageUtil.withPrefix("&cEnder pearls are disabled!"));
         }
     }
 }
