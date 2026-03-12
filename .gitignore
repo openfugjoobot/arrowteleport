@@ -1,0 +1,40 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseProperties
+pom.xml.versionsBackup
+dependency-reduce-pom.xml
+buildoutput.xml
+
+# Java
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.nar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+bin/
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+Thumbs.db
+*.zip
+*.tar.gz
