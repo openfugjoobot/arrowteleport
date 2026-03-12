@@ -29,6 +29,8 @@ public class ArrowListener implements Listener {
 
     private final ArrowTeleport plugin;
     private static final String OWNER_METADATA = "at_owner";
+    private static final String YAW_METADATA = "at_yaw";
+    private static final String PITCH_METADATA = "at_pitch";
 
     public ArrowListener(ArrowTeleport plugin) {
         this.plugin = plugin;
@@ -58,6 +60,10 @@ public class ArrowListener implements Listener {
 
         // Store owner metadata
         arrow.setMetadata(OWNER_METADATA, new FixedMetadataValue(plugin, player.getUniqueId().toString()));
+        
+        // Store player's look direction at time of shot
+        arrow.setMetadata(YAW_METADATA, new FixedMetadataValue(plugin, (float) player.getLocation().getYaw()));
+        arrow.setMetadata(PITCH_METADATA, new FixedMetadataValue(plugin, (float) player.getLocation().getPitch()));
 
         // Track arrow shot stats
         plugin.getGameManager().recordArrowShot(player);
@@ -163,8 +169,21 @@ public class ArrowListener implements Listener {
             return;
         }
 
-        // Teleport!
+        // Teleport! - preserve look direction from when arrow was shot
         Location from = player.getLocation();
+        
+        // Get stored yaw/pitch from arrow metadata
+        float yaw = 0, pitch = 0;
+        if (arrow.hasMetadata(YAW_METADATA)) {
+            yaw = arrow.getMetadata(YAW_METADATA).get(0).asFloat();
+        }
+        if (arrow.hasMetadata(PITCH_METADATA)) {
+            pitch = arrow.getMetadata(PITCH_METADATA).get(0).asFloat();
+        }
+        
+        safeLocation.setYaw(yaw);
+        safeLocation.setPitch(pitch);
+        
         player.teleport(safeLocation);
 
         // 🎵 Sound + ✨ Particles
