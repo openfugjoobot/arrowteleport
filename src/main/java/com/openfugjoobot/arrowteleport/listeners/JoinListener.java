@@ -23,11 +23,9 @@ public class JoinListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         
-        // Check if player has an existing (but inactive) session
+        // Notify player about existing session - must manually /atstart to resume
         if (plugin.getGameManager().getPlayerData(player).isInGame()) {
-            // Resume the session
-            plugin.getGameManager().resumeSession(player);
-            player.sendMessage(MessageUtil.withPrefix("&aChallenge resumed!"));
+            player.sendMessage(MessageUtil.withPrefix("&ePrevious challenge active. Use /atstart to resume!"));
         }
     }
 }
