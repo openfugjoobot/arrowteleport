@@ -54,18 +54,39 @@ public class SafeLocationFinder {
             // Position player in front of the block (on the wall)
             int playerBlockX = blockX + hitFace.getModX();
             int playerBlockZ = blockZ + hitFace.getModZ();
-            double playerY = hitY;
             
-            // Ensure we have 2 blocks clearance (feet + head)
-            Block feetBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY), playerBlockZ);
-            Block headBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY) + 1, playerBlockZ);
+            // Find ground level at destination: raycast DOWN from hit Y to find first solid block
+            int groundY = hitBlock.getY();
+            for (int y = hitBlock.getY(); y >= hitBlock.getY() - 3; y--) {
+                Block testBlock = world.getBlockAt(playerBlockX, y, playerBlockZ);
+                if (isSolidBlock(testBlock.getType())) {
+                    groundY = y;
+                    break;
+                }
+            }
             
-            // Return the wall position (arrow always hits block from front, so this is always clear)
-            return new Location(world, 
-                playerBlockX + 0.5,
-                (int) Math.floor(playerY),
-                playerBlockZ + 0.5
-            );
+            // Start search from ground Y + 1 (first air block above ground)
+            int startY = groundY + 1;
+            
+            // Raycast upward from this position to find safe spot
+            for (int yOff = 0; yOff < MAX_SEARCH_HEIGHT; yOff++) {
+                int checkY = startY + yOff;
+                Block feetBlock = world.getBlockAt(playerBlockX, checkY, playerBlockZ);
+                Block headBlock = world.getBlockAt(playerBlockX, checkY + 1, playerBlockZ);
+                
+                if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
+                    return new Location(world, 
+                        playerBlockX + 0.5,
+                        checkY,
+                        playerBlockZ + 0.5,
+                        hitLocation.getYaw(),
+                        hitLocation.getPitch()
+                    );
+                }
+            }
+            
+            // No safe location found
+            return null;
         }
         
         // Arrow hit air/non-solid - raycast upward from hit Y
