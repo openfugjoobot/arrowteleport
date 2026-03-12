@@ -7,6 +7,7 @@ import com.openfugjoobot.arrowteleport.game.TimerManager;
 import com.openfugjoobot.arrowteleport.kit.KitManager;
 import com.openfugjoobot.arrowteleport.listeners.ArrowListener;
 import com.openfugjoobot.arrowteleport.listeners.ItemListener;
+import com.openfugjoobot.arrowteleport.listeners.JoinListener;
 import com.openfugjoobot.arrowteleport.listeners.MovementListener;
 import com.openfugjoobot.arrowteleport.listeners.VehicleListener;
 import org.bukkit.plugin.java.JavaPlugin;
