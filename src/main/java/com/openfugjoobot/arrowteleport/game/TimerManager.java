@@ -2,7 +2,8 @@ package com.openfugjoobot.arrowteleport.game;
 
 import com.openfugjoobot.arrowteleport.ArrowTeleport;
 import com.openfugjoobot.arrowteleport.util.MessageUtil;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -18,12 +19,12 @@ public class TimerManager {
 
     private final ArrowTeleport plugin;
     private final Map<UUID, BukkitRunnable> activeTimers;
-    private final MiniMessage miniMessage;
+    private final LegacyComponentSerializer legacySerializer;
 
     public TimerManager(ArrowTeleport plugin) {
         this.plugin = plugin;
         this.activeTimers = new ConcurrentHashMap<>();
-        this.miniMessage = MiniMessage.miniMessage();
+        this.legacySerializer = LegacyComponentSerializer.legacySection();
     }
 
     /**
@@ -58,9 +59,8 @@ public class TimerManager {
 
                 message = MessageUtil.colorize(message);
 
-                // Send action bar
-                player.sendActionBar(miniMessage.deserialize(
-                    message.replace('&', '§')));
+                // Send action bar - use Legacy serializer for &-codes
+                player.sendActionBar(legacySerializer.deserialize(message));
             }
         };
 
