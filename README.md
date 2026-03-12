@@ -5,24 +5,30 @@ A Minecraft Paper 1.21.x challenge plugin that restricts players to vertical mov
 ## 🎮 Features
 
 - **Vertical-Only Movement**: Players can only move up/down naturally, horizontal movement is blocked
-- **Arrow Teleportation**: Shoot an arrow → Land → Teleport to arrow location
-- **🛡️ Collision Safety**: Advanced teleport location detection - finds safe landing spots, prevents suffocation
-- **Full Command System**: `/at`, `/atReset`, `/atStart`, `/atKit`, `/atStats`, `/atReload`
-- **Starter Kit**: Automatic distribution of bow with Infinity, arrows, food, and golden apples
-- **Timer Display**: Real-time action bar showing time, arrows shot, and distance traveled
-- **Multiplayer Support**: Independent sessions per player
-- **Persistent Stats**: Track total distance, arrows shot, best times across sessions
+- **Arrow Teleportation**: Shoot an arrow → Teleport to arrow location
+- **🛡️ Smart Collision Safety**: Teleports to wall position at arrow hit Y level (no upward search), accepts 1-block clearance (crouching/lying in 1x1 holes)
+- **🎯 Look Direction Preservation**: Maintains player's look direction from when arrow was shot
+- **🎵 Sound + Particles**: Enderman teleport sound + portal particles on teleport
+- **Persistent Sessions**: Sessions survive logout/relogin, auto-resume on join
+- **Full Command System**: `/at`, `/atStart`, `/atStop`, `/atReset`, `/atKit`, `/atStats`, `/atReload`
+- **Starter Kit**: Bow (Infinity) + 1 Arrow (manual via `/atKit`)
+- **Timer Display**: Real-time action bar showing time, arrows shot, distance
+- **Persistent Stats**: Track total distance, arrows shot, best times
 
 ## 📋 Commands
 
 | Command | Permission | Description |
 |---------|------------|-------------|
 | `/at` | `arrowteleport.use` | Main command - shows help and status |
-| `/atReset` | `arrowteleport.reset` | Reset to world spawn, end session |
-| `/atStart` | `arrowteleport.start` | Start challenge with countdown |
-| `/atKit` | `arrowteleport.kit` | Give starter kit |
+| `/atStart` | `arrowteleport.start` | Start challenge with 3s countdown |
+| `/atStop [player]` | `arrowteleport.admin` | Stop challenge (all or specific player) |
+| `/atReset` | `arrowteleport.reset` | Reset to spawn, end session |
+| `/atReset full` | `arrowteleport.admin` | **Delete all worlds** (overworld/nether/end) + shutdown server |
+| `/atKit` | `arrowteleport.kit` | Give starter kit (1 bow + 1 arrow) |
 | `/atStats` | `arrowteleport.stats` | Show personal statistics |
 | `/atReload` | `arrowteleport.reload` | Reload configuration (admin) |
+
+**Note:** All commands require OP permissions (`default: op`).
 
 ## 🔧 Installation
 
@@ -32,24 +38,24 @@ A Minecraft Paper 1.21.x challenge plugin that restricts players to vertical mov
 
 2. **Download:**
    - Download `arrowteleport-1.0.0.jar` from [Releases](../../releases)
-   - Or build from source (see below)
+   - Or build from source
 
 3. **Install:**
-   - Copy `arrowteleport-1.0.0.jar` to your server's `plugins/` folder
-   - Restart the server
-   - Edit `plugins/ArrowTeleport/config.yml` as needed
+   - Copy JAR to `plugins/` folder
+   - Restart server
+   - Edit `plugins/ArrowTeleport/config.yml`
 
 ## ⚙️ Configuration
 
-See `src/main/resources/config.yml` for default configuration:
+Default config (`src/main/resources/config.yml`):
 
 ```yaml
 game:
   restrict-movement: true
   cross-world-teleport: true
   max-teleport-distance: 0  # 0 = unlimited
-  fall-damage-reduction: 0.5  # Reduce fall damage by 50%
-  teleport-cooldown: 0  # seconds
+  fall-damage-reduction: 0.5
+  teleport-cooldown: 0
 
 kit:
   enabled: true
@@ -61,7 +67,7 @@ kit:
         - "INFINITY:1"
     arrows:
       material: ARROW
-      amount: 64
+      amount: 1  # Single arrow only
 
 timer:
   enabled: true
@@ -82,104 +88,118 @@ restrictions:
 
 ## 🛡️ Collision Safety
 
-The plugin implements **smart teleport location finding**:
+**Smart wall-teleport system:**
 
-1. When an arrow hits, the plugin checks if the hit location would cause suffocation
-2. It raycasts upward to find the first safe air block
-3. Player is teleported to the safe location, not inside the block
-4. Prevents suffocation damage and getting stuck
+1. Detects which block face the arrow hit (NORTH/SOUTH/EAST/WEST/UP/DOWN)
+2. Positions player **in front of the wall** at arrow hit Y level
+3. **No upward search** - prevents roof teleportation
+4. Accepts 2-block clearance (standing) or 1-block clearance (crouching/lying in 1x1 holes)
+5. Preserves look direction from arrow shot time
 
-The safety search looks up to 10 blocks above the hit location and requires 2 blocks clearance (feet + head).
+## 🎯 Teleport Mechanics
+
+- **Look direction**: Uses yaw/pitch from when arrow was shot (not when it lands)
+- **Position**: 0.3 blocks in front of hit block face
+- **Y-level**: Exact arrow hit Y (no vertical adjustment unless 1 block down fallback)
+- **Effects**: `ENTITY_ENDERMAN_TELEPORT` sound + `PORTAL` particles (50)
+
+## 🔄 Session Persistence
+
+- Sessions **persist across logout/relogin**
+- Auto-resume on player join (3-tick delay to avoid login timeout)
+- Sessions only end via:
+  - `/atReset` (player reset + session end)
+  - `/atStop` (admin stop)
+  - `/atReset full` (world wipe + server shutdown)
 
 ## 🔨 Building from Source
 
-### Option 1: Using Maven (Recommended)
-
 ```bash
-# Install Maven and Java 21
+# Requirements
 sudo apt-get install maven openjdk-21-jdk
 
-# Clone and build
+# Build
+cd arrowteleport-plugin
 mvn clean package
 
-# Plugin JAR will be in target/arrowteleport-1.0.0.jar
+# Output: target/arrowteleport-1.0.0.jar
 ```
 
-### Option 2: Using GitHub Actions (CI/CD)
-
-The repository includes a GitHub Actions workflow that automatically builds the plugin on every push.
-
-1. Fork this repository
-2. Push changes to `main` branch
-3. Download the built JAR from GitHub Actions artifacts
-
-### Option 3: Manual Compilation
-
-If you have the Paper API available:
-
-```bash
-javac -cp "paper-api-1.21.4.jar" -d target/classes src/main/java/**/*.java
-jar cf arrowteleport-1.0.0.jar -C target/classes . -C src/main/resources .
-```
-
-## 📝 API & Events
-
-The plugin uses standard Paper events:
-
-- `PlayerMoveEvent` - Movement restriction
-- `ProjectileHitEvent` - Arrow landing detection
-- `EntityMountEvent` - Riding prevention
-- `PlayerRiptideEvent` - Trident blocking
-
-## 🐛 Troubleshooting
-
-### Plugin won't load
-- Ensure you're running **Paper 1.21.x** (not Spigot/Bukkit)
-- Check server logs for error messages
-- Verify Java 21 is being used
-
-### Movement not being blocked
-- Ensure player is in an active session (`/atStart`)
-- Check `game.restrict-movement` in config
-
-### TPs landing inside blocks
-- This shouldn't happen with collision safety enabled
-- Verify you're using the latest version
-- Report with `/atStats` output
+**CI/CD:** GitHub Actions auto-builds on every push. Download from Actions artifacts.
 
 ## 📂 Project Structure
 
 ```
 arrowteleport-plugin/
 ├── src/main/java/com/openfugjoobot/arrowteleport/
-│   ├── ArrowTeleport.java              # Main plugin class
-│   ├── config/ConfigManager.java       # Config.yml handling
-│   ├── commands/                       # All commands
-│   ├── listeners/
-│   │   ├── MovementListener.java       # Movement restriction
-│   │   ├── ArrowListener.java          # Arrow teleport + collision safety
-│   │   ├── VehicleListener.java        # Riding/vehicle blocking
-│   │   └── ItemListener.java           # Elytra/pearl/riptide blocking
+│   ├── ArrowTeleport.java              # Main class
+│   ├── config/
+│   │   └── ConfigManager.java          # Config loading
+│   ├── commands/
+│   │   ├── BaseCommand.java            # Command base
+│   │   ├── MainCommand.java            # /at
+│   │   ├── StartCommand.java           # /atStart
+│   │   ├── StopCommand.java            # /atStop ✨ NEW
+│   │   ├── ResetCommand.java           # /atReset, /atReset full
+│   │   ├── KitCommand.java             # /atKit
+│   │   ├── StatsCommand.java           # /atStats
+│   │   ├── ReloadCommand.java          # /atReload
+│   │   └── CommandManager.java         # Registration
 │   ├── game/
-│   │   ├── GameManager.java            # Session management
-│   │   ├── PlayerData.java             # Statistics
+│   │   ├── GameManager.java            # Session mgmt, persistence
+│   │   ├── PlayerData.java             # Stats storage
 │   │   └── TimerManager.java           # Action bar timer
-│   ├── kit/KitManager.java             # Starter kit
+│   ├── kit/
+│   │   └── KitManager.java             # Kit distribution
+│   ├── listeners/
+│   │   ├── MovementListener.java       # Walk/swim/elytra block
+│   │   ├── ArrowListener.java          # TP logic, sounds, particles
+│   │   ├── VehicleListener.java        # Ride/vehicle block
+│   │   ├── ItemListener.java           # Pearl/chorus/riptide block
+│   │   └── JoinListener.java           # Auto-resume on join ✨ NEW
 │   └── util/
 │       ├── MessageUtil.java            # Color codes
-│       ├── SafeLocationFinder.java     # 🛡️ Collision safety
-│       └── PermissionUtil.java         # Permission constants
+│       ├── SafeLocationFinder.java     # 🛡️ Wall-teleport logic
+│       └── PermissionUtil.java         # Permission strings
 ├── src/main/resources/
-│   ├── plugin.yml                      # Plugin metadata
+│   ├── plugin.yml                      # Plugin metadata + commands
 │   └── config.yml                      # Default config
-├── pom.xml                             # Maven build config
+├── .github/workflows/
+│   └── build.yml                       # CI/CD pipeline
+├── pom.xml                             # Maven build
 └── README.md                           # This file
 ```
 
+## 🐛 Troubleshooting
+
+### Plugin won't load
+- Ensure **Paper 1.21.x** (not Spigot/Bukkit)
+- Check logs for errors
+- Verify Java 21
+
+### Teleport fails ("No safe landing spot")
+- Arrow may have hit invalid location
+- Check console for errors
+- Report with screenshot
+
+### Login timeout
+- If persists after updating, delete plugin and re-download
+- Ensure latest build from GitHub Actions
+
 ## 📜 License
 
-MIT License - Feel free to use, modify, and distribute.
+MIT License
 
 ## 🤝 Credits
 
 Developed by OpenFugjooBot for the OpenFugjoo community.
+
+---
+
+**Latest Changes:**
+- Wall-teleport at arrow hit Y (no roof TP)
+- 1x1 hole support (lying position)
+- Look direction preservation
+- Persistent sessions with auto-resume
+- `/atStop` command
+- `/atReset full` world wipe + shutdown
