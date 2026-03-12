@@ -86,13 +86,13 @@ public class SafeLocationFinder {
                 );
             }
             
-            // Try 1 block lower (for holes slightly above ground)
+            // Try 1 block lower
             int lowerY = (int) Math.floor(playerY) - 1;
             feetBlock = world.getBlockAt(playerBlockX, lowerY, playerBlockZ);
-            headBlock = world.getBlockAt(playerBlockX, lowerY + 1, playerBlockZ);
             
             // 2-block clearance at lower Y
-            if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
+            Block headBlockLower = world.getBlockAt(playerBlockX, lowerY + 1, playerBlockZ);
+            if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlockLower.getType())) {
                 return new Location(world, 
                     playerX,
                     lowerY,
@@ -141,19 +141,35 @@ public class SafeLocationFinder {
 
     /**
      * Determine which face of the block was hit based on relative coordinates
+     * For 1x1 holes, arrow hits center - use trajectory to guess correct face
      */
     private static BlockFace determineHitFace(Location relativeHit) {
         double x = relativeHit.getX();
         double y = relativeHit.getY();
         double z = relativeHit.getZ();
         
-        // Check which face is closest
-        if (x <= 0.2) return BlockFace.WEST;
-        if (x >= 0.8) return BlockFace.EAST;
-        if (z <= 0.2) return BlockFace.NORTH;
-        if (z >= 0.8) return BlockFace.SOUTH;
-        if (y <= 0.2) return BlockFace.DOWN;
-        return BlockFace.UP;
+        // Sharp edge hits (< 0.15 or > 0.85) = clear face
+        if (x < 0.15) return BlockFace.WEST;
+        if (x > 0.85) return BlockFace.EAST;
+        if (z < 0.15) return BlockFace.NORTH;
+        if (z > 0.85) return BlockFace.SOUTH;
+        
+        // Center hits (0.3-0.7) - arrow came through hole, use Z axis as default
+        // (most common: shooting INTO wall)
+        if (x > 0.3 && x < 0.7 && z > 0.3 && z < 0.7) {
+            // Arrow came from somewhere - assume NORTH (positive Z direction)
+            // This is the most common case: shooting at wall
+            return BlockFace.NORTH;
+        }
+        
+        // Ambiguous hits - fall back to primary axis
+        if (Math.abs(x - 0.5) > Math.abs(z - 0.5)) {
+            // X axis is more extreme
+            return x < 0.5 ? BlockFace.WEST : BlockFace.EAST;
+        } else {
+            // Z axis is more extreme
+            return z < 0.5 ? BlockFace.NORTH : BlockFace.SOUTH;
+        }
     }
 
     /**
@@ -177,29 +193,39 @@ public class SafeLocationFinder {
 
     /**
      * Check if a block material is passable (safe for player)
+     * Simple check: air, water, lava, plants, glass, fences, etc.
      */
     private static boolean isPassableBlock(Material material) {
         if (material == null) return false;
         
-        // Passable materials
-        return material == Material.AIR 
+        // Definitely passable
+        if (material == Material.AIR 
             || material == Material.CAVE_AIR
             || material == Material.VOID_AIR
             || material == Material.WATER
-            || material == Material.LAVA
-            || material == Material.SHORT_GRASS
-            || material == Material.TALL_GRASS
-            || material == Material.FERN
-            || material == Material.LARGE_FERN
-            || material == Material.DEAD_BUSH
-            || material == Material.SUGAR_CANE
-            || material == Material.VINE
-            || material == Material.GLOW_LICHEN
-            || material == Material.SNOW
-            || material.name().contains("TULIP")
-            || material.name().contains("FLOWER")
-            || material.name().contains("MUSHROOM")
-            || material.isTransparent();
+            || material == Material.LAVA) {
+            return true;
+        }
+        
+        // Plants, flowers, signs, rails, etc. - all non-solid
+        if (!material.isSolid()) {
+            return true;
+        }
+        
+        // Explicitly allow some transparent/solid-ish blocks
+        String name = material.name();
+        return name.contains("GLASS")
+            || name.contains("FENCE")
+            || name.contains("WALL")
+            || name.contains("PANE")
+            || name.contains("SIGN")
+            || name.contains("RAIL")
+            || name.contains("TORCH")
+            || name.contains("BUTTON")
+            || name.contains("FLOWER")
+            || name.contains("GRASS")
+            || name.contains("VINE")
+            || name.contains("LADDER");
     }
 
     /**
