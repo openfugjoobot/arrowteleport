@@ -3,6 +3,7 @@ name: Build ArrowTeleport
 on:
   push:
     branches: [ main, develop ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -29,15 +30,13 @@ jobs:
       with:
         name: ArrowTeleport-JAR
         path: target/arrowteleport-*.jar
+        retention-days: 30
 
-    - name: Create Release
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    - name: Create Release (on tag push only)
+      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
         files: target/arrowteleport-*.jar
-        draft: false
         prerelease: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
