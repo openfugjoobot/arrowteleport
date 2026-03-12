@@ -29,6 +29,7 @@ permissions:
     default: op
     children:
       arrowteleport.reload: true
+      arrowteleport.stop: true
 
 commands:
   arrowteleport:

@@ -64,7 +64,7 @@ public class SafeLocationFinder {
             Block feetBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY), playerBlockZ);
             Block headBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY) + 1, playerBlockZ);
             
-            // If 2-block clearance available, use standing position
+            // Check 2-block clearance first (standing)
             if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
                 return new Location(world, 
                     playerX,
@@ -75,7 +75,7 @@ public class SafeLocationFinder {
                 );
             }
             
-            // If only 1-block clearance, still use it (crouch position)
+            // Accept 1-block clearance (1x1 hole - lying position)
             if (isPassableBlock(feetBlock.getType())) {
                 return new Location(world, 
                     playerX,
@@ -86,11 +86,12 @@ public class SafeLocationFinder {
                 );
             }
             
-            // Try 1 block lower
+            // Try 1 block lower (for holes slightly above ground)
             int lowerY = (int) Math.floor(playerY) - 1;
             feetBlock = world.getBlockAt(playerBlockX, lowerY, playerBlockZ);
             headBlock = world.getBlockAt(playerBlockX, lowerY + 1, playerBlockZ);
             
+            // 2-block clearance at lower Y
             if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
                 return new Location(world, 
                     playerX,
@@ -101,6 +102,7 @@ public class SafeLocationFinder {
                 );
             }
             
+            // 1-block clearance at lower Y (1x1 hole)
             if (isPassableBlock(feetBlock.getType())) {
                 return new Location(world, 
                     playerX,

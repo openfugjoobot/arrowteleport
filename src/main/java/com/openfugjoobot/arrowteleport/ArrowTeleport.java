@@ -80,8 +80,9 @@ public class ArrowTeleport extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ArrowListener(this), this);
         getServer().getPluginManager().registerEvents(new VehicleListener(this), this);
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
+        getServer().getPluginManager().registerEvents(new JoinListener(this), this);
         
-        getLogger().info("Registered 4 event listeners");
+        getLogger().info("Registered 5 event listeners");
     }
 
     // Getters

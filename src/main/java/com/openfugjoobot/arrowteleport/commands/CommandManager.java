@@ -21,6 +21,7 @@ public class CommandManager {
         registerCommand("atkit", new KitCommand(plugin));
         registerCommand("atstats", new StatsCommand(plugin));
         registerCommand("atreload", new ReloadCommand(plugin));
+        registerCommand("atstop", new StopCommand(plugin));
     }
 
     private void registerCommand(String commandName, BaseCommand executor, String... aliases) {

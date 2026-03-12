@@ -55,6 +55,22 @@ public class GameManager {
     }
 
     /**
+     * Resume session for returning player (after relog)
+     */
+    public void resumeSession(Player player) {
+        PlayerData data = getPlayerData(player);
+        if (data.isInGame()) {
+            activeSessions.add(player.getUniqueId());
+            plugin.getLogger().info("Resumed existing session for " + player.getName());
+            
+            // Restart timer
+            if (plugin.getConfigManager().isTimerEnabled()) {
+                plugin.getTimerManager().startTimer(player);
+            }
+        }
+    }
+
+    /**
      * End a game session for player
      */
     public void endSession(Player player) {
@@ -109,14 +125,14 @@ public class GameManager {
     }
 
     /**
-     * Clean up player data on quit
+     * Player quit - keep session active (persist until reset/stop)
      */
     public void playerQuit(Player player) {
-        if (hasActiveSession(player)) {
-            // Optionally pause or end session
-            // For now, end it
-            endSession(player);
-        }
+        // Remove from active sessions but DON'T end - session persists
+        activeSessions.remove(player.getUniqueId());
+        plugin.getLogger().info("Player " + player.getName() + " logged out - session kept active");
+        
+        // Timer stopped in ArrowTeleport.onDisable or PlayerJoin handling
     }
 
     // Persistence
