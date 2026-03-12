@@ -62,3 +62,8 @@ commands:
     usage: /atReload
     permission: arrowteleport.reload
     aliases: [atreload]
+  atstop:
+    description: Stop challenge
+    usage: /atStop [player]
+    permission: arrowteleport.admin
+    aliases: [atstop]
