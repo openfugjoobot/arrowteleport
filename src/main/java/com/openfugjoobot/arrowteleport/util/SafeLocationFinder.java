@@ -7,13 +7,13 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 /**
- * 🛡️ Simple Collision Safety - Teleport to wall, don't suffocate
+ * 🛡️ Simple Collision Safety - Teleport to wall, slide sideways if blocked
  */
 public class SafeLocationFinder {
 
     /**
      * Find teleport spot: IN FRONT of hit block, same Y level
-     * Returns null only if completely boxed in
+     * Slides left/right along the wall if center is blocked
      */
     public static Location findSafeLocation(Location hitLocation) {
         if (hitLocation == null || hitLocation.getWorld() == null) {
@@ -26,72 +26,94 @@ public class SafeLocationFinder {
         // Determine which direction the arrow came from
         BlockFace hitFace = getHitFace(hitLocation, hitBlock);
         
-        // Position: 1 block in front of the wall (XZ centered)
-        int targetX = hitBlock.getX() + hitFace.getModX();
-        int targetZ = hitBlock.getZ() + hitFace.getModZ();
-        int targetY = hitLocation.getBlockY();
+        // Primary: 1 block in front of the wall (centered)
+        int baseX = hitBlock.getX() + hitFace.getModX();
+        int baseZ = hitBlock.getZ() + hitFace.getModZ();
+        int y = hitLocation.getBlockY();
         
-        // Check feet position - if passable, we're good (standing or crouching)
-        Block feetBlock = world.getBlockAt(targetX, targetY, targetZ);
-        if (isPassable(feetBlock)) {
-            return new Location(world, targetX + 0.5, targetY, targetZ + 0.5, 
+        // Try center position
+        if (isPassable(world.getBlockAt(baseX, y, baseZ))) {
+            return new Location(world, baseX + 0.5, y, baseZ + 0.5, 
                 hitLocation.getYaw(), hitLocation.getPitch());
         }
         
-        // Try 1 block down (common case: arrow hit slightly above ground)
-        feetBlock = world.getBlockAt(targetX, targetY - 1, targetZ);
-        if (isPassable(feetBlock)) {
-            return new Location(world, targetX + 0.5, targetY - 1, targetZ + 0.5, 
+        // Slide along the wall: try left and right offsets
+        // Get perpendicular face for sliding direction
+        BlockFace slideFace = getSlideFace(hitFace);
+        
+        // Try 1 block left
+        int leftX = baseX + slideFace.getModX();
+        int leftZ = baseZ + slideFace.getModZ();
+        if (isPassable(world.getBlockAt(leftX, y, leftZ))) {
+            return new Location(world, leftX + 0.5, y, leftZ + 0.5, 
                 hitLocation.getYaw(), hitLocation.getPitch());
         }
         
-        // Try 1 block up (rare: arrow hit low on wall)
-        feetBlock = world.getBlockAt(targetX, targetY + 1, targetZ);
-        if (isPassable(feetBlock)) {
-            return new Location(world, targetX + 0.5, targetY + 1, targetZ + 0.5, 
+        // Try 1 block right (opposite direction)
+        int rightX = baseX - slideFace.getModX();
+        int rightZ = baseZ - slideFace.getModZ();
+        if (isPassable(world.getBlockAt(rightX, y, rightZ))) {
+            return new Location(world, rightX + 0.5, y, rightZ + 0.5, 
                 hitLocation.getYaw(), hitLocation.getPitch());
         }
         
-        return null; // Truly no space
+        // Try 2 blocks left (wider slide)
+        leftX = baseX + (slideFace.getModX() * 2);
+        leftZ = baseZ + (slideFace.getModZ() * 2);
+        if (isPassable(world.getBlockAt(leftX, y, leftZ))) {
+            return new Location(world, leftX + 0.5, y, leftZ + 0.5, 
+                hitLocation.getYaw(), hitLocation.getPitch());
+        }
+        
+        return null; // Truly boxed in
     }
 
     /**
-     * Simple hit face detection - arrow trajectory based
+     * Simple hit face detection
      */
     private static BlockFace getHitFace(Location hit, Block block) {
         double x = hit.getX() - block.getX();
         double z = hit.getZ() - block.getZ();
         
-        // Wall hits (most common)
-        if (z < 0.3) return BlockFace.NORTH;  // Hit south side of block
-        if (z > 0.7) return BlockFace.SOUTH;  // Hit north side
-        if (x < 0.3) return BlockFace.WEST;   // Hit east side
-        if (x > 0.7) return BlockFace.EAST;   // Hit west side
+        if (z < 0.3) return BlockFace.NORTH;
+        if (z > 0.7) return BlockFace.SOUTH;
+        if (x < 0.3) return BlockFace.WEST;
+        if (x > 0.7) return BlockFace.EAST;
         
-        // Center hit - arrow flying through hole into wall
-        // Default to NORTH (player shooting forward into wall)
+        // Center hit - default NORTH
         return BlockFace.NORTH;
     }
 
     /**
-     * Is this block walkable/standable?
-     * Air, water, plants, glass, signs, rails = YES
-     * Stone, dirt, wood, ore = NO
+     * Get perpendicular face for sliding along wall
+     */
+    private static BlockFace getSlideFace(BlockFace hitFace) {
+        switch (hitFace) {
+            case NORTH:
+            case SOUTH:
+                return BlockFace.EAST;  // Slide along X axis
+            case EAST:
+            case WEST:
+                return BlockFace.NORTH; // Slide along Z axis
+            default:
+                return BlockFace.EAST;
+        }
+    }
+
+    /**
+     * Is this block passable?
      */
     private static boolean isPassable(Block block) {
         Material m = block.getType();
         
-        // Gases/liquids always passable
         if (m == Material.AIR || m == Material.WATER || m == Material.LAVA) {
             return true;
         }
         
-        // Non-solid blocks (plants, signs, rails, torches, etc.)
         if (!m.isSolid()) {
             return true;
         }
         
-        // Transparent/special blocks (glass, fences, walls, ladders)
         String name = m.name();
         return name.contains("GLASS") 
             || name.contains("FENCE") 
