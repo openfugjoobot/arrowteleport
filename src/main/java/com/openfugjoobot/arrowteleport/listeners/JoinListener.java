@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * Handles player join events - resume active sessions after relog
@@ -26,7 +27,7 @@ public class JoinListener implements Listener {
         // Resume existing session after short delay (wait for login to complete)
         if (plugin.getGameManager().getPlayerData(player).isInGame()) {
             // Delay 3 ticks (~60ms) to ensure player is fully connected
-            new org.bukkit.scheduler.BukkitRunnable() {
+            new BukkitRunnable() {
                 @Override
                 public void run() {
                     plugin.getGameManager().resumeSession(player);
