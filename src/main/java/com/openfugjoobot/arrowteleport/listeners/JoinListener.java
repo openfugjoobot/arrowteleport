@@ -23,9 +23,16 @@ public class JoinListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         
-        // Notify player about existing session - must manually /atstart to resume
+        // Resume existing session after short delay (wait for login to complete)
         if (plugin.getGameManager().getPlayerData(player).isInGame()) {
-            player.sendMessage(MessageUtil.withPrefix("&ePrevious challenge active. Use /atstart to resume!"));
+            // Delay 3 ticks (~60ms) to ensure player is fully connected
+            new org.bukkit.scheduler.BukkitRunnable() {
+                @Override
+                public void run() {
+                    plugin.getGameManager().resumeSession(player);
+                    player.sendMessage(MessageUtil.withPrefix("&aChallenge resumed!"));
+                }
+            }.runTaskLater(plugin, 3L);
         }
     }
 }
