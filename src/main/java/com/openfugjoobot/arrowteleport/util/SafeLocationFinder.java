@@ -68,13 +68,29 @@ public class SafeLocationFinder {
             // Start search from ground Y + 1 (first air block above ground)
             int startY = groundY + 1;
             
-            // Raycast upward from this position to find safe spot
+            // First pass: Look for 2-block clearance (standing)
             for (int yOff = 0; yOff < MAX_SEARCH_HEIGHT; yOff++) {
                 int checkY = startY + yOff;
                 Block feetBlock = world.getBlockAt(playerBlockX, checkY, playerBlockZ);
                 Block headBlock = world.getBlockAt(playerBlockX, checkY + 1, playerBlockZ);
                 
                 if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
+                    return new Location(world, 
+                        playerBlockX + 0.5,
+                        checkY,
+                        playerBlockZ + 0.5,
+                        hitLocation.getYaw(),
+                        hitLocation.getPitch()
+                    );
+                }
+            }
+            
+            // Second pass: Accept 1-block clearance (crouching/lying) - NEVER go on top of block
+            for (int yOff = 0; yOff < MAX_SEARCH_HEIGHT; yOff++) {
+                int checkY = startY + yOff;
+                Block feetBlock = world.getBlockAt(playerBlockX, checkY, playerBlockZ);
+                
+                if (isPassableBlock(feetBlock.getType())) {
                     return new Location(world, 
                         playerBlockX + 0.5,
                         checkY,
