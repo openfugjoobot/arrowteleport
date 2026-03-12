@@ -45,60 +45,70 @@ public class SafeLocationFinder {
         Block hitBlock = hitLocation.getBlock();
         Material hitMaterial = hitBlock.getType();
         
-        // If arrow hit a solid block, spawn player ON THE WALL (in front of the block)
+        // If arrow hit a solid block, spawn player IN FRONT of the wall (not above!)
         if (isSolidBlock(hitMaterial)) {
             // Get the face the arrow hit
             Location relativeHit = new Location(world, hitX - blockX, hitY - hitBlock.getY(), hitZ - blockZ);
             BlockFace hitFace = determineHitFace(relativeHit);
             
-            // Position player in front of the block (on the wall)
+            // Calculate block position in front of the hit block
             int playerBlockX = blockX + hitFace.getModX();
             int playerBlockZ = blockZ + hitFace.getModZ();
             
-            // Find ground level at destination: raycast DOWN from hit Y to find first solid block
-            int groundY = hitBlock.getY();
-            for (int y = hitBlock.getY(); y >= hitBlock.getY() - 3; y--) {
-                Block testBlock = world.getBlockAt(playerBlockX, y, playerBlockZ);
-                if (isSolidBlock(testBlock.getType())) {
-                    groundY = y;
-                    break;
-                }
+            // Calculate position 0.3 blocks in front of the wall (at arrow hit Y level)
+            double playerX = playerBlockX + 0.5;
+            double playerZ = playerBlockZ + 0.5;
+            double playerY = hitY; // Keep same Y as arrow hit - don't go upward!
+            
+            // Check if this position has at least 1-block clearance (crouching)
+            Block feetBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY), playerBlockZ);
+            Block headBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY) + 1, playerBlockZ);
+            
+            // If 2-block clearance available, use standing position
+            if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
+                return new Location(world, 
+                    playerX,
+                    Math.floor(playerY),
+                    playerZ,
+                    hitLocation.getYaw(),
+                    hitLocation.getPitch()
+                );
             }
             
-            // Start search from ground Y + 1 (first air block above ground)
-            int startY = groundY + 1;
-            
-            // First pass: Look for 2-block clearance (standing)
-            for (int yOff = 0; yOff < MAX_SEARCH_HEIGHT; yOff++) {
-                int checkY = startY + yOff;
-                Block feetBlock = world.getBlockAt(playerBlockX, checkY, playerBlockZ);
-                Block headBlock = world.getBlockAt(playerBlockX, checkY + 1, playerBlockZ);
-                
-                if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
-                    return new Location(world, 
-                        playerBlockX + 0.5,
-                        checkY,
-                        playerBlockZ + 0.5,
-                        hitLocation.getYaw(),
-                        hitLocation.getPitch()
-                    );
-                }
+            // If only 1-block clearance, still use it (crouch position)
+            if (isPassableBlock(feetBlock.getType())) {
+                return new Location(world, 
+                    playerX,
+                    Math.floor(playerY),
+                    playerZ,
+                    hitLocation.getYaw(),
+                    hitLocation.getPitch()
+                );
             }
             
-            // Second pass: Accept 1-block clearance (crouching/lying) - NEVER go on top of block
-            for (int yOff = 0; yOff < MAX_SEARCH_HEIGHT; yOff++) {
-                int checkY = startY + yOff;
-                Block feetBlock = world.getBlockAt(playerBlockX, checkY, playerBlockZ);
-                
-                if (isPassableBlock(feetBlock.getType())) {
-                    return new Location(world, 
-                        playerBlockX + 0.5,
-                        checkY,
-                        playerBlockZ + 0.5,
-                        hitLocation.getYaw(),
-                        hitLocation.getPitch()
-                    );
-                }
+            // Try 1 block lower
+            int lowerY = (int) Math.floor(playerY) - 1;
+            feetBlock = world.getBlockAt(playerBlockX, lowerY, playerBlockZ);
+            headBlock = world.getBlockAt(playerBlockX, lowerY + 1, playerBlockZ);
+            
+            if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
+                return new Location(world, 
+                    playerX,
+                    lowerY,
+                    playerZ,
+                    hitLocation.getYaw(),
+                    hitLocation.getPitch()
+                );
+            }
+            
+            if (isPassableBlock(feetBlock.getType())) {
+                return new Location(world, 
+                    playerX,
+                    lowerY,
+                    playerZ,
+                    hitLocation.getYaw(),
+                    hitLocation.getPitch()
+                );
             }
             
             // No safe location found
