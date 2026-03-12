@@ -167,6 +167,10 @@ public class ArrowListener implements Listener {
         Location from = player.getLocation();
         player.teleport(safeLocation);
 
+        // 🎵 Sound + ✨ Particles
+        player.playSound(safeLocation, org.bukkit.Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+        player.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, safeLocation, 50, 0.5, 0.5, 0.5, 0.5);
+
         // Record stats
         plugin.getGameManager().recordTeleport(player, from, safeLocation);
 

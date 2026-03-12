@@ -36,11 +36,7 @@ public class StartCommand extends BaseCommand {
         // Run countdown then start
         plugin.getTimerManager().runCountdown(player, () -> {
             plugin.getGameManager().startSession(player);
-            
-            // Give kit automatically
-            if (plugin.getConfigManager().isKitEnabled()) {
-                plugin.getKitManager().giveKit(player);
-            }
+            // Kit must be given manually via /atKit command
         });
 
         return true;

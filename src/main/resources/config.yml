@@ -31,13 +31,7 @@ kit:
         - "INFINITY:1"
     arrows:
       material: ARROW
-      amount: 64
-    food:
-      material: COOKED_BEEF
-      amount: 32
-    apples:
-      material: GOLDEN_APPLE
-      amount: 5
+      amount: 1
 
 # Timer Settings
 timer:

@@ -8,19 +8,19 @@ description: Arrow teleportation challenge game mode - horizontal movement only 
 permissions:
   arrowteleport.use:
     description: Access to basic ArrowTeleport commands
-    default: true
+    default: op
   arrowteleport.reset:
     description: Reset to spawn
-    default: true
+    default: op
   arrowteleport.start:
     description: Start a challenge
-    default: true
+    default: op
   arrowteleport.kit:
     description: Get starter kit
-    default: true
+    default: op
   arrowteleport.stats:
     description: View statistics
-    default: true
+    default: op
   arrowteleport.reload:
     description: Reload configuration
     default: op
