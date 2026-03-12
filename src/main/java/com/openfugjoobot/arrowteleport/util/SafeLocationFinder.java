@@ -45,47 +45,66 @@ public class SafeLocationFinder {
         Block hitBlock = hitLocation.getBlock();
         Material hitMaterial = hitBlock.getType();
         
-        // Determine starting Y for search
-        // If arrow hit a solid block, we need to be ON TOP of it
-        double startY;
+        // If arrow hit a solid block, spawn player ON THE WALL (in front of the block)
         if (isSolidBlock(hitMaterial)) {
-            // Arrow hit solid - start from block above the hit block
-            startY = hitBlock.getY() + 1;
-        } else {
-            // Arrow hit air/non-solid - start from arrow's Y
-            startY = hitY;
+            // Get the face the arrow hit
+            Location relativeHit = new Location(world, hitX - blockX, hitY - hitBlock.getY(), hitZ - blockZ);
+            BlockFace hitFace = determineHitFace(relativeHit);
+            
+            // Position player in front of the block (on the wall)
+            int playerBlockX = blockX + hitFace.getModX();
+            int playerBlockZ = blockZ + hitFace.getModZ();
+            double playerY = hitY;
+            
+            // Ensure we have 2 blocks clearance (feet + head)
+            Block feetBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY), playerBlockZ);
+            Block headBlock = world.getBlockAt(playerBlockX, (int) Math.floor(playerY) + 1, playerBlockZ);
+            
+            // Return the wall position (arrow always hits block from front, so this is always clear)
+            return new Location(world, 
+                playerBlockX + 0.5,
+                (int) Math.floor(playerY),
+                playerBlockZ + 0.5
+            );
         }
-
-        // Raycast upward to find safe location
-        int startBlockY = (int) Math.floor(startY);
         
+        // Arrow hit air/non-solid - raycast upward from hit Y
+        int startBlockY = (int) Math.floor(hitY);
         for (int offset = 0; offset < MAX_SEARCH_HEIGHT; offset++) {
             int checkY = startBlockY + offset;
-            
-            // Check if current Y and Y+1 have space for player
             Block feetBlock = world.getBlockAt(blockX, checkY, blockZ);
             Block headBlock = world.getBlockAt(blockX, checkY + 1, blockZ);
             
-            // We need: feetBlock passable AND headBlock passable
             if (isPassableBlock(feetBlock.getType()) && isPassableBlock(headBlock.getType())) {
-                
-                // Found safe location - return centered on block with slight elevation
                 Location safeLocation = new Location(world, 
-                    blockX + 0.5,  // Center X
-                    checkY,         // Feet level
-                    blockZ + 0.5    // Center Z
+                    blockX + 0.5,
+                    checkY,
+                    blockZ + 0.5
                 );
-                
-                // Set facing direction to match original
                 safeLocation.setYaw(hitLocation.getYaw());
                 safeLocation.setPitch(hitLocation.getPitch());
-                
                 return safeLocation;
             }
         }
         
-        // No safe location found within range
         return null;
+    }
+
+    /**
+     * Determine which face of the block was hit based on relative coordinates
+     */
+    private static BlockFace determineHitFace(Location relativeHit) {
+        double x = relativeHit.getX();
+        double y = relativeHit.getY();
+        double z = relativeHit.getZ();
+        
+        // Check which face is closest
+        if (x <= 0.2) return BlockFace.WEST;
+        if (x >= 0.8) return BlockFace.EAST;
+        if (z <= 0.2) return BlockFace.NORTH;
+        if (z >= 0.8) return BlockFace.SOUTH;
+        if (y <= 0.2) return BlockFace.DOWN;
+        return BlockFace.UP;
     }
 
     /**
