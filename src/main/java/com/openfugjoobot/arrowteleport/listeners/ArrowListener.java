@@ -162,12 +162,8 @@ public class ArrowListener implements Listener {
             }
         }
 
-        // ✅ COLLISION SAFETY CHECK
-        if (!SafeLocationFinder.isSafeLocation(safeLocation)) {
-            player.sendMessage(MessageUtil.withPrefix("\u0026cDestination is not safe!"));
-            arrow.remove();
-            return;
-        }
+        // Skip strict isSafeLocation check - findSafeLocation already validates
+        // isSafeLocation requires 2-block clearance, but 1-block (crouch) is now valid
 
         // Teleport! - preserve look direction from when arrow was shot
         Location from = player.getLocation();
